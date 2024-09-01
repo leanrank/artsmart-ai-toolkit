@@ -29,5 +29,3 @@ pytorch_fid
 optimum-quanto
 sentencepiece
 huggingface_hub
-packaging
-flash-attn --no-build-isolation
