@@ -169,6 +169,7 @@ cython_debug/
 /config/*
 !/config/examples
 !/config/_PUT_YOUR_CONFIGS_HERE).txt
+!/config/lora_flux_schnell.yaml
 /output/*
 !/output/.gitkeep
 /extensions/*
