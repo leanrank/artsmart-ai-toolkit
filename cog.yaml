@@ -39,9 +39,20 @@ build:
     - "sentencepiece==0.2.0"
     - "peft>=0.6.0"
   run:
-    - "pip install --upgrade pip"
-    - "pip install packaging"
-    - "pip install flash-attn --no-build-isolation"
+    - command: pip install --upgrade pip
+      mounts:
+        - type: cache
+          target: /root/.cache/pip
 
-# predict: "predict.py:Predictor"
+    - command: pip install packaging
+      mounts:
+        - type: cache
+          target: /root/.cache/pip
+
+    - command: pip install flash-attn --no-build-isolation
+      mounts:
+        - type: cache
+          target: /root/.cache/pip
+
+predict: "predict.py:Predictor"
 train: "train.py:train"
