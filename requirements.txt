@@ -29,4 +29,3 @@ pytorch_fid
 optimum-quanto
 sentencepiece
 huggingface_hub
-flash-attn
