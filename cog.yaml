@@ -44,6 +44,7 @@ build:
   run:
     - command: pip install packaging
     - command: pip install flash-attn --no-build-isolation
+    - command: pip uninstall opencv-python
 
 predict: "predict.py:Predictor"
 train: "train.py:train"
