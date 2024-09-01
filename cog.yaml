@@ -38,24 +38,6 @@ build:
     - "optimum-quanto==0.2.4"
     - "sentencepiece==0.2.0"
     - "peft>=0.6.0"
-  run:
-    - command: pip install --upgrade pip
-      mounts:
-        - type: secret
-          id: pip
-          target: /etc/pip.conf
-
-    - command: pip install packaging
-      mounts:
-        - type: secret
-          id: pip
-          target: /etc/pip.conf
-
-    - command: pip install flash-attn --no-build-isolation
-      mounts:
-        - type: secret
-          id: pip
-          target: /etc/pip.conf
 
 predict: "predict.py:Predictor"
 train: "train.py:train"
