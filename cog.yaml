@@ -38,6 +38,7 @@ build:
     - "optimum-quanto==0.2.4"
     - "sentencepiece==0.2.0"
     - "peft>=0.6.0"
+    - "flash-attn==2.6.3"
 
 predict: "predict.py:Predictor"
 train: "train.py:train"
