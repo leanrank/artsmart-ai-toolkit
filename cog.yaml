@@ -41,18 +41,21 @@ build:
   run:
     - command: pip install --upgrade pip
       mounts:
-        - type: cache
-          target: /root/.cache/pip
+        - type: secret
+          id: pip
+          target: /etc/pip.conf
 
     - command: pip install packaging
       mounts:
-        - type: cache
-          target: /root/.cache/pip
+        - type: secret
+          id: pip
+          target: /etc/pip.conf
 
     - command: pip install flash-attn --no-build-isolation
       mounts:
-        - type: cache
-          target: /root/.cache/pip
+        - type: secret
+          id: pip
+          target: /etc/pip.conf
 
 predict: "predict.py:Predictor"
 train: "train.py:train"
