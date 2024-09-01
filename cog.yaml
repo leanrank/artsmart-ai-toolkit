@@ -39,5 +39,9 @@ build:
     - "sentencepiece==0.2.0"
     - "peft>=0.6.0"
 
+  run:
+    - command: pip install packaging
+    - command: pip install flash-attn --no-build-isolation
+
 predict: "predict.py:Predictor"
 train: "train.py:train"
