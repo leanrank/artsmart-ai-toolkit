@@ -44,6 +44,18 @@ class Preprocessing:
 
             print("All images have been converted")
 
+    @classmethod
+    def data_annotation(cls, data_dir: str, custom_token: str = "TOK"):
+        images_path = cls.find_images(data_dir)
+        for image_path in images_path:
+            caption = generate_caption(image_path, custom_token=custom_token)
+            file_name = os.path.splitext(image_path)[0]
+            caption_file_path = f"{file_name}.txt"
+            write_caption(caption, caption_file_path)
+
+        gc.collect()
+        torch.cuda.empty_cache()
+
     @staticmethod
     def clean_directory(directory):
         supported_types = [
@@ -119,15 +131,3 @@ class Preprocessing:
                 if file.endswith(".png") or file.endswith(".webp"):
                     images.append(os.path.join(root, file))
         return images
-
-    @staticmethod
-    def data_annotation(cls, data_dir: str, custom_token: str = "TOK"):
-        images_path = cls.find_images(data_dir)
-        for image_path in images_path:
-            caption = generate_caption(image_path, custom_token=custom_token)
-            file_name = os.path.splitext(image_path)[0]
-            caption_file_path = f"{file_name}.txt"
-            write_caption(caption, caption_file_path)
-
-        gc.collect()
-        torch.cuda.empty_cache()
