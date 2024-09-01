@@ -40,5 +40,5 @@ build:
     - "peft>=0.6.0"
     - "flash-attn==2.6.3"
 
-predict: "predict.py:Predictor"
+# predict: "predict.py:Predictor"
 train: "train.py:train"
