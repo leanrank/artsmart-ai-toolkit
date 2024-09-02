@@ -40,6 +40,7 @@ build:
     - "optimum-quanto==0.2.4"
     - "sentencepiece==0.2.0"
     - "peft>=0.6.0"
+    - "python-slugify"
 
   run:
     - command: pip install packaging
