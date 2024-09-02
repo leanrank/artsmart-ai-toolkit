@@ -155,5 +155,6 @@ def generate_caption(
     output = model.generate(**inputs, max_new_tokens=300, do_sample=False)
     text = processor.decode(output[0][2:], skip_special_tokens=True)
     res = extract_response_pairs(text)
+    caption = res[0][1]
 
-    return res
+    return caption

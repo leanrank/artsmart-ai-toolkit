@@ -129,9 +129,9 @@ class Preprocessing:
         for root, _, files in os.walk(directory):
             for file in files:
                 if (
-                    file.endswith(".png")
-                    or file.endswith(".webp")
-                    or file.endswith(".jpg")
-                ):
+                    file.endswith(".jpg")
+                    or file.endswith(".jpeg")
+                    or file.endswith(".png")
+                ) and ".ipynb_checkpoints" not in root:
                     images.append(os.path.join(root, file))
         return images
