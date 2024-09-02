@@ -23,7 +23,6 @@ build:
     - "accelerate==0.33.0"
     - "toml==0.10.2"
     - "albumentations==1.4.3"
-    - "opencv-python-headless==4.10.0.84"
     - "pillow==10.4.0"
     - "pydantic==1.10.17"
     - "omegaconf==2.3.0"
@@ -40,11 +39,11 @@ build:
     - "optimum-quanto==0.2.4"
     - "sentencepiece==0.2.0"
     - "peft>=0.6.0"
+    - "opencv-python-headless==4.10.0.84"
 
   run:
     - command: pip install packaging
     - command: pip install flash-attn --no-build-isolation
-    - command: python -m pip uninstall opencv-python -y
 
 predict: "predict.py:Predictor"
 train: "train.py:train"
