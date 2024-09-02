@@ -67,6 +67,7 @@ def train(
     config["config"]["process"][0]["train"]["batch_size"] = batch_size
     config["config"]["process"][0]["network"]["linear"] = lora_rank
     config["config"]["process"][0]["trigger_word"] = trigger_word
+    config["config"]["process"][0]["datasets"][0]["folder_path"] = dataset_dir
 
     with config_path.open("w") as f:
         yaml.dump(config, f)
