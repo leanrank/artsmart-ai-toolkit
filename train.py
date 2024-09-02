@@ -41,10 +41,12 @@ def train(
         default=True,
     ),
     autocaption_prefix: str = Input(
-        description="The prefix to use for autocaptioning. This is useful if you want to autocaption a series of images, e.g. 'a photo of TOK, a photo of' or 'a drawing of TOK, a drawing of'. Prefixes help set the right context for your captions, and the captioner will use this prefix as context."
+        description="The prefix to use for autocaptioning. This is useful if you want to autocaption a series of images, e.g. 'a photo of TOK, a photo of' or 'a drawing of TOK, a drawing of'. Prefixes help set the right context for your captions, and the captioner will use this prefix as context.",
+        default=None,
     ),
     autocaption_suffix: str = Input(
-        description="The suffix to use for autocaptioning. This is useful if you want to autocaption a series of images, e.g. 'in the style of TOK'. Suffixes help set the right context for your captions, and the captioner will use this suffix as context."
+        description="The suffix to use for autocaptioning. This is useful if you want to autocaption a series of images, e.g. 'in the style of TOK'. Suffixes help set the right context for your captions, and the captioner will use this suffix as context.",
+        default=None,
     ),
     steps: int = Input(
         description="Number of training steps.", ge=10, le=6000, default=1250
