@@ -40,6 +40,12 @@ def train(
         description="Whether to use autocaption. Autocaption for images dataset is more accurate but takes longer to train.",
         default=True,
     ),
+    autocaption_prefix: str = Input(
+        description="The prefix to use for autocaptioning. This is useful if you want to autocaption a series of images, e.g. 'a photo of TOK, a photo of' or 'a drawing of TOK, a drawing of'. Prefixes help set the right context for your captions, and the captioner will use this prefix as context."
+    ),
+    autocaption_suffix: str = Input(
+        description="The suffix to use for autocaptioning. This is useful if you want to autocaption a series of images, e.g. 'in the style of TOK'. Suffixes help set the right context for your captions, and the captioner will use this suffix as context."
+    ),
     steps: int = Input(
         description="Number of training steps.", ge=10, le=6000, default=1250
     ),
@@ -95,12 +101,25 @@ def train(
 
     Preprocessing.data_cleaning(data_dir=dataset_dir, convert=True)
     if autocaption:
-        Preprocessing.data_annotation(data_dir=dataset_dir, custom_token=trigger_word)
+        Preprocessing.data_annotation(
+            data_dir=dataset_dir,
+            custom_token=trigger_word,
+            autocaption_prefix=autocaption_prefix,
+            autocaption_suffix=autocaption_suffix,
+        )
 
     # Run trainer
     run_cmd(f"python run.py config/lora_flux_schnell.yaml")
 
     output_lora = "output/lora_flux_schnell"
+
+    captions = Preprocessing.find_captions(dataset_dir)
+    out_captions = f"{output_lora}/captions"
+    os.makedirs(out_captions, exist_ok=True)
+
+    for caption in captions:
+        os.system(f"cp {caption} {out_captions}")
+
     output_zip_path = "/tmp/output.zip"
     os.system(f"zip -r {output_zip_path} {output_lora}")
 

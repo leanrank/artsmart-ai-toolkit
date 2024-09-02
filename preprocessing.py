@@ -45,12 +45,24 @@ class Preprocessing:
             print("All images have been converted")
 
     @classmethod
-    def data_annotation(cls, data_dir: str, custom_token: str = "TOK"):
+    def data_annotation(
+        cls,
+        data_dir: str,
+        custom_token: str = "TOK",
+        autocaption_prefix: str = None,
+        autocaption_suffix: str = None,
+    ):
         images_path = cls.find_images(data_dir)
         for image_path in images_path:
             caption = generate_caption(image_path, custom_token=custom_token)
             file_name = os.path.splitext(image_path)[0]
             caption_file_path = f"{file_name}.txt"
+            if autocaption_prefix and autocaption_suffix:
+                caption = caption
+            elif autocaption_prefix:
+                caption = f"{autocaption_prefix}, {caption}"
+            elif autocaption_suffix:
+                caption = f"{caption}, {autocaption_suffix}"
             write_caption(caption, caption_file_path)
 
         gc.collect()
@@ -135,3 +147,12 @@ class Preprocessing:
                 ) and ".ipynb_checkpoints" not in root:
                     images.append(os.path.join(root, file))
         return images
+
+    @staticmethod
+    def find_captions(directory):
+        captions = []
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.endswith(".txt"):
+                    captions.append(os.path.join(root, file))
+        return captions
