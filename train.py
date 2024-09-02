@@ -1,9 +1,11 @@
 import os
+import sys
 import logging
 import yaml
 import zipfile
 import subprocess
 
+from subprocess import call
 from pathlib import Path
 from cog import BaseModel, Input, Path
 
@@ -16,6 +18,14 @@ logger = logging.getLogger(__name__)
 
 class TrainingOutput(BaseModel):
     weights: Path
+
+
+def run_cmd(command):
+    try:
+        call(command, shell=True)
+    except KeyboardInterrupt:
+        print("Process interrupted")
+        sys.exit(1)
 
 
 def train(
@@ -88,9 +98,7 @@ def train(
         Preprocessing.data_annotation(data_dir=dataset_dir, custom_token=trigger_word)
 
     # Run trainer
-    subprocess.run(
-        ["python", "run.py", "config/lora_flux_schnell.yaml"], close_fds=False
-    )
+    run_cmd(f"python run.py config/lora_flux_schnell.yaml")
 
     output_lora = "output/lora_flux_schnell"
     output_zip_path = "/tmp/output.zip"
