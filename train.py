@@ -62,10 +62,11 @@ def train(
 
     config["config"]["process"][0]["train"]["steps"] = steps
     config["config"]["process"][0]["save"]["save_every"] = steps + 1
-    config["config"]["process"][0]["sample"]["sample_every"] = steps + 1
+    # config["config"]["process"][0]["sample"]["sample_every"] = steps
     config["config"]["process"][0]["train"]["lr"] = learning_rate
     config["config"]["process"][0]["train"]["batch_size"] = batch_size
     config["config"]["process"][0]["network"]["linear"] = lora_rank
+    config["config"]["process"][0]["network"]["linear_alpha"] = lora_rank
     config["config"]["process"][0]["trigger_word"] = trigger_word
     config["config"]["process"][0]["datasets"][0]["folder_path"] = dataset_dir
 

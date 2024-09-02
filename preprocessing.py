@@ -128,6 +128,10 @@ class Preprocessing:
         images = []
         for root, _, files in os.walk(directory):
             for file in files:
-                if file.endswith(".png") or file.endswith(".webp"):
+                if (
+                    file.endswith(".png")
+                    or file.endswith(".webp")
+                    or file.endswith(".jpg")
+                ):
                     images.append(os.path.join(root, file))
         return images
