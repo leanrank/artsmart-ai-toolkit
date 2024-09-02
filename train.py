@@ -91,7 +91,7 @@ def train(
         ["python", "run.py", "config/lora_flux_schnell.yaml"], close_fds=False
     )
 
-    output_lora = "output/flux_schnell_train"
+    output_lora = "output/lora_flux_schnell"
     output_zip_path = "/tmp/output.zip"
     os.system(f"zip -r {output_zip_path} {output_lora}")
 
