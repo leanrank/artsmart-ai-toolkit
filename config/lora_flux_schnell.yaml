@@ -9,8 +9,12 @@ config:
       trigger_word: "TOK"
       network:
         type: "lora"
-        linear: 16
-        linear_alpha: 16
+        linear: 128
+        linear_alpha: 128
+        network_kwargs:
+          only_if_contains:
+            - "transformer.single_transformer_blocks.7.proj_out"
+            - "transformer.single_transformer_blocks.20.proj_out"
       save:
         dtype: float16 # precision to save
         save_every: 1750 # save every this many steps
