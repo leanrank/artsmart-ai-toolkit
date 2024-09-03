@@ -28,6 +28,13 @@ model = LlavaForConditionalGeneration.from_pretrained(
 processor = AutoProcessor.from_pretrained(model_id)
 
 
+def first_lower(s):
+    if len(s) == 0:
+        return s
+    else:
+        return s[0].lower() + s[1:]
+
+
 def extract_response_pairs(text):
     turns = re.split(r"(USER:|ASSISTANT:)", text)[1:]
     turns = [turn.strip() for turn in turns if turn.strip()]
@@ -150,6 +157,9 @@ def generate_caption(
     output = model.generate(**inputs, max_new_tokens=300, do_sample=False)
     text = processor.decode(output[0][2:], skip_special_tokens=True)
     res = extract_response_pairs(text)
-    caption = res[0][1]
+    try:
+        caption = first_lower(str(res[0][1]))
+    except:
+        caption = ""
 
     return caption
