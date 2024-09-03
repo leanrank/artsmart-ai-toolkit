@@ -81,14 +81,9 @@ def generate_caption(
     You are an AI assistant that captions images for training purposes. Your task is to create clear, detailed captions.
     """
     if custom_token:
-        system_prompt += f' that incorporate the custom token "Photo of {custom_token} man or woman" if is person else "Photo of {custom_token}" the beginning.'
-        system_prompt += """
-    Make it natural and blend in with the entire caption.
-    Example:
-    - Photo of TOK woman sitting on a beige couch. She is wearing a dark blue matching outfit with a geometric...
-    - Photo of TOK man stands outdoors on a paved pathway with a grass patch and flowerbed beside him...
-    - Photo of TOK standing, smiling and looking at the camera...
-    """
+        system_prompt += (
+            f' that incorporate the custom token "{custom_token}" at the beginning.'
+        )
 
     system_prompt += """
     The following guide outlines the captioning approach:
@@ -97,11 +92,11 @@ def generate_caption(
     1. **Avoid Making Main Concepts Variable**: Exclude specific traits of the main teaching point to ensure it remains consistent across the dataset.
     2. **Include Detailed Descriptions**: Describe everything except the primary concept being taught.
     3. **Use Generic Classes as Tags**:
-    - Broad tags (e.g., f' (e.g., Photo of {custom_token})' if custom_token else 'man',f' (e.g., Photo of {custom_token})' if custom_token else 'woman') can bias the entire class toward the training data.
+    - Broad tags (e.g., "man") can bias the entire class toward the training data.
     - Specific tags (e.g., character name or unique string like "m4n") can reduce impact on the general class while creating strong associations.
 
     ### Caption Structure:
-    1. **Globals**: Rare tokens or uniform tags{f' (e.g., Photo of {custom_token})' if custom_token else ''}.
+    1. **Globals**: Rare tokens or uniform tags{f' (e.g., {custom_token})' if custom_token else ''}.
     1.5. **Natural Language Description**: A concise description shorter than a sentence but longer than a tag describing the entire scene.
     2. **Type/Perspective**:
     - Broad description of the image type and perspective (e.g., "photograph," "full body," "from side").
@@ -124,8 +119,7 @@ def generate_caption(
     if custom_instruction:
         system_prompt += f"\n{custom_instruction}\n"
 
-    # user_message = "Here is an image for you to describe. Please describe the image in detail and ensure it adheres to the guidelines. Do not include any uncertainty (i.e. I don't know, appears, seems) or any other text. Focus exclusively on visible elements and not conceptual ones."
-    user_message = "Here is an image for you to describe. Please describe the image in detail. Do not include any uncertainty (i.e. I don't know, appears, seems) or any other text. Focus exclusively on visible elements and not conceptual ones."
+    user_message = "Here is an image for you to describe. Please describe the image in detail and ensure it adheres to the guidelines. Do not include any uncertainty (i.e. I don't know, appears, seems) or any other text. Focus exclusively on visible elements and not conceptual ones."
 
     if current_caption:
         user_message += f' The user says this about the image: "{current_caption}". Consider this information while creating your caption, but don\'t simply repeat it. Provide your own detailed description.'
@@ -133,12 +127,12 @@ def generate_caption(
     user_message += " Thank you very much for your help!"
 
     conversation = [
-        # {
-        #     "role": "assistant",
-        #     "content": [
-        #         {"type": "text", "text": system_prompt},
-        #     ],
-        # },
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "text", "text": system_prompt},
+            ],
+        },
         {
             "role": "user",
             "content": [
