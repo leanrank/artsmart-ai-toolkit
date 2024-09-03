@@ -124,7 +124,8 @@ def generate_caption(
     if custom_instruction:
         system_prompt += f"\n{custom_instruction}\n"
 
-    user_message = "Here is an image for you to describe. Please describe the image in detail and ensure it adheres to the guidelines. Do not include any uncertainty (i.e. I don't know, appears, seems) or any other text. Focus exclusively on visible elements and not conceptual ones."
+    # user_message = "Here is an image for you to describe. Please describe the image in detail and ensure it adheres to the guidelines. Do not include any uncertainty (i.e. I don't know, appears, seems) or any other text. Focus exclusively on visible elements and not conceptual ones."
+    user_message = "Here is an image for you to describe. Please describe the image in detail. Do not include any uncertainty (i.e. I don't know, appears, seems) or any other text. Focus exclusively on visible elements and not conceptual ones."
 
     if current_caption:
         user_message += f' The user says this about the image: "{current_caption}". Consider this information while creating your caption, but don\'t simply repeat it. Provide your own detailed description.'
@@ -132,12 +133,12 @@ def generate_caption(
     user_message += " Thank you very much for your help!"
 
     conversation = [
-        {
-            "role": "assistant",
-            "content": [
-                {"type": "text", "text": system_prompt},
-            ],
-        },
+        # {
+        #     "role": "assistant",
+        #     "content": [
+        #         {"type": "text", "text": system_prompt},
+        #     ],
+        # },
         {
             "role": "user",
             "content": [
