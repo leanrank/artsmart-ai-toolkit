@@ -52,7 +52,7 @@ def train(
         description="Number of training steps.", ge=10, le=6000, default=1250
     ),
     learning_rate: float = Input(
-        description="Learning rate for the model.", ge=0.00001, le=0.01, default=1e-4
+        description="Learning rate for the model.", ge=0.00001, le=0.01, default=2e-4
     ),
     batch_size: int = Input(
         description="Batch size for the model.", ge=1, le=16, default=1
@@ -60,6 +60,15 @@ def train(
     lora_rank: int = Input(
         description="Supports 16, 32, 64, 128. Higher ranks take longer to train but can capture more complex features. Caption quality is more important for higher ranks.",
         default=16,
+    ),
+    lora_name: str = Input(
+        description="The name of the LoRA to use.",
+        default="lora_flux_schnell",
+    ),
+    model_type: str = Input(
+        description="The type of model to use.",
+        choices=["schnell", "dev"],
+        default="schnell",
     ),
 ) -> TrainingOutput:
     """Trains a LoRA model on the provided images."""
@@ -74,10 +83,15 @@ def train(
     dataset_dir = "dataset"
     os.system(f"rm -rf {dataset_dir}")
 
-    config_path = Path("config/lora_flux_schnell.yaml")
+    if model_type == "schnell":
+        config_path = Path("config/lora_flux_schnell.yaml")
+    else:
+        config_path = Path("config/lora_flux_dev.yaml")
+
     with config_path.open("r") as f:
         config = yaml.safe_load(f)
 
+    config["config"]["name"] = lora_name
     config["config"]["process"][0]["train"]["steps"] = steps
     config["config"]["process"][0]["save"]["save_every"] = steps + 1
     # config["config"]["process"][0]["sample"]["sample_every"] = steps
@@ -111,9 +125,12 @@ def train(
         )
 
     # Run trainer
-    run_cmd(f"python run.py config/lora_flux_schnell.yaml")
+    if model_type == "schnell":
+        run_cmd(f"python run.py config/lora_flux_schnell.yaml")
+    else:
+        run_cmd(f"python run.py config/lora_flux_dev.yaml")
 
-    output_lora = "output/lora_flux_schnell"
+    output_lora = f"output/{lora_name}"
 
     captions = Preprocessing.find_captions(dataset_dir)
     out_captions = f"{output_lora}/captions"
@@ -122,7 +139,7 @@ def train(
     for caption in captions:
         os.system(f"cp {caption} {out_captions}")
 
-    output_zip_path = "/tmp/output.zip"
+    output_zip_path = f"/tmp/{lora_name}.zip"
     os.system(f"zip -r {output_zip_path} {output_lora}")
 
     os.system(f"rm -rf {dataset_dir}")

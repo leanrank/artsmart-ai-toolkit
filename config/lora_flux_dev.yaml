@@ -1,11 +1,14 @@
 ---
 job: extension
 config:
-  name: "lora_flux_schnell"
+  # this name will be the folder and filename name
+  name: "lora_flux_dev"
   process:
     - type: "sd_trainer"
       training_folder: "output"
       device: cuda:0
+      # if a trigger word is specified, it will be added to captions of training data if it does not already exist
+      # alternatively, in your captions you can add [trigger] and it will be replaced with the trigger word
       trigger_word: "TOK"
       network:
         type: "lora"
@@ -19,6 +22,10 @@ config:
         dtype: float16 # precision to save
         save_every: 2000 # save every this many steps
         max_step_saves_to_keep: 1 # how many intermittent saves to keep
+        push_to_hub: false #change this to True to push your trained model to Hugging Face.
+        # You can either set up a HF_TOKEN env variable or you'll be prompted to log-in
+      #       hf_repo_id: your-username/your-model-slug
+      #       hf_private: true #whether the repo is private or public
       datasets:
         - folder_path: "dataset"
           caption_ext: "txt"
@@ -28,26 +35,26 @@ config:
           resolution: [512, 768, 1024] # flux enjoys multiple resolutions
       train:
         batch_size: 1
-        steps: 1750 # total number of steps to train 500 - 4000 is a good range
+        steps: 2000 # total number of steps to train 500 - 4000 is a good range
         gradient_accumulation_steps: 1
         train_unet: true
         train_text_encoder: false # probably won't work with flux
         gradient_checkpointing: true # need the on unless you have a ton of vram
         noise_scheduler: "flowmatch" # for training only
         optimizer: "adamw8bit"
-        lr: 2e-4
+        lr: 3e-4
         ema_config:
           use_ema: true
           ema_decay: 0.99
 
+        # will probably need this if gpu supports it for flux, other dtypes may not work correctly
         dtype: bf16
       model:
         # huggingface model name or path
-        name_or_path: "black-forest-labs/FLUX.1-schnell"
-        assistant_lora_path: "ostris/FLUX.1-schnell-training-adapter" # Required for flux schnell training
+        name_or_path: "black-forest-labs/FLUX.1-dev"
         is_flux: true
         quantize: true # run 8bit mixed precision
-
+      #        low_vram: true  # uncomment this if the GPU is connected to your monitors. It will use less vram to quantize, but is slower.
       sample:
         sampler: "flowmatch" # must match train.noise_scheduler
         sample_every: 1000 # sample every this many steps
@@ -59,8 +66,9 @@ config:
         neg: "" # not used on flux
         seed: 42
         walk_seed: true
-        guidance_scale: 1 # schnell does not do guidance
-        sample_steps: 4 # 1 - 4 works well
+        guidance_scale: 4
+        sample_steps: 20
+# you can add any additional meta info here. [name] is replaced with config name at top
 meta:
   name: "[name]"
   version: "1.0"
