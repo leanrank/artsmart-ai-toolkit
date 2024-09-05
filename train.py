@@ -38,7 +38,7 @@ def train(
     ),
     autocaption: bool = Input(
         description="Whether to use autocaption. Autocaption for images dataset is more accurate but takes longer to train.",
-        default=True,
+        default=False,
     ),
     autocaption_prefix: str = Input(
         description="The prefix to use for autocaptioning. This is useful if you want to autocaption a series of images, e.g. 'a photo of TOK, a photo of' or 'a drawing of TOK, a drawing of'. Prefixes help set the right context for your captions, and the captioner will use this prefix as context.",
@@ -116,13 +116,13 @@ def train(
         os.system(f"tar -xvf {compressed_image_file_path} -C {dataset_dir}")
 
     Preprocessing.data_cleaning(data_dir=dataset_dir, convert=True)
-    if autocaption:
-        Preprocessing.data_annotation(
-            data_dir=dataset_dir,
-            custom_token=trigger_word,
-            autocaption_prefix=autocaption_prefix,
-            autocaption_suffix=autocaption_suffix,
-        )
+    Preprocessing.data_annotation(
+        data_dir=dataset_dir,
+        custom_token=trigger_word,
+        autocaption_prefix=autocaption_prefix,
+        autocaption_suffix=autocaption_suffix,
+        is_autocaption=autocaption,
+    )
 
     # Run trainer
     if model_type == "schnell":

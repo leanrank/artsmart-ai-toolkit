@@ -51,18 +51,22 @@ class Preprocessing:
         custom_token: str = "TOK",
         autocaption_prefix: str = None,
         autocaption_suffix: str = None,
+        is_autocaption: bool = True,
     ):
         images_path = cls.find_images(data_dir)
         for image_path in images_path:
-            caption = generate_caption(image_path, custom_token=custom_token)
             file_name = os.path.splitext(image_path)[0]
             caption_file_path = f"{file_name}.txt"
-            if autocaption_prefix and autocaption_suffix:
-                caption = caption
-            elif autocaption_prefix:
-                caption = f"{autocaption_prefix}, {caption}"
-            elif autocaption_suffix:
-                caption = f"{caption}, {autocaption_suffix}"
+            if not is_autocaption:
+                caption = custom_token
+            else:
+                caption = generate_caption(image_path, custom_token=custom_token)
+                if autocaption_prefix and autocaption_suffix:
+                    caption = caption
+                elif autocaption_prefix:
+                    caption = f"{autocaption_prefix}, {caption}"
+                elif autocaption_suffix:
+                    caption = f"{caption}, {autocaption_suffix}"
             write_caption(caption, caption_file_path)
 
         gc.collect()
