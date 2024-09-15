@@ -18,6 +18,10 @@ jobs:
           tool-cache: false
           docker-images: false
 
+      - name: Set outputs
+        id: git_commit_short
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -30,3 +34,6 @@ jobs:
 
       - name: Push to Replicate
         run: cog push r8.im/${{ inputs.model_name }}
+
+      - name: Push to Docker HUB
+        run: cog push ${{ secrets.DOCKERHUB_USERNAME }}/artsmart-flux-trainer:${{ steps.git_commit_short.outputs.sha_short }}
