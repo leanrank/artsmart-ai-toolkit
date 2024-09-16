@@ -9,6 +9,7 @@ jobs:
   push_to_dockerhub:
     name: Push to Dockerhub
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Free disk space
         uses: jlumbroso/free-disk-space@v1.3.1
