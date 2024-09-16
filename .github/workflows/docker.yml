@@ -17,14 +17,14 @@ jobs:
           tool-cache: false
           docker-images: false
 
-      - name: Set outputs
-        id: git_commit_short
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: true
+
+      - name: Set outputs
+        id: git_commit_short
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: setup Cog
         uses: replicate/setup-cog@v2
