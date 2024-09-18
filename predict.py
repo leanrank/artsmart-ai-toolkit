@@ -71,7 +71,7 @@ class Predictor(BasePredictor):
             description="The name of the LoRA to use.",
             default="lora_flux_schnell",
         ),
-        model_type: str = Input(
+        model: str = Input(
             description="The type of model to use.",
             choices=["schnell", "dev"],
             default="schnell",
@@ -89,7 +89,7 @@ class Predictor(BasePredictor):
         dataset_dir = "dataset"
         os.system(f"rm -rf {dataset_dir}")
 
-        if model_type == "schnell":
+        if model == "schnell":
             config_path = Path("config/lora_flux_schnell.yaml")
         else:
             config_path = Path("config/lora_flux_dev.yaml")
@@ -131,7 +131,7 @@ class Predictor(BasePredictor):
         )
 
         # Run trainer
-        if model_type == "schnell":
+        if model == "schnell":
             run_cmd(f"python run.py config/lora_flux_schnell.yaml")
         else:
             run_cmd(f"python run.py config/lora_flux_dev.yaml")
