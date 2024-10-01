@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd /app
+
+QUEUE_WORKERS=${QUEUE_WORKERS:-"shotsmart-trainer"}
+WORKER_NUM=${WORKER_NUM:-"2"}
+
+gosu shotsmart python worker.py --queue $QUEUE_WORKERS --num-worker $WORKER_NUM
