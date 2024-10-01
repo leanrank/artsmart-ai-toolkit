@@ -1,0 +1,3 @@
+#!/usr/bin/env bas
+
+echo "s6 exited"
