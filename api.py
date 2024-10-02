@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from train_task import train_model
+from tasks.train import train_model
 from fastapi.routing import APIRouter
 
 

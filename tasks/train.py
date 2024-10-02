@@ -1,4 +1,4 @@
-from tasks.base import app
+from .base import app
 
 
 @app.task(name="train_model")
