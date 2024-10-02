@@ -92,6 +92,9 @@ COPY ./docker/root /
 RUN sed -i 's/\r//' /etc/s6/worker/run
 RUN chmod +x /etc/s6/worker/run
 
+RUN sed -i 's/\r//' /etc/s6/web/run
+RUN chmod +x /etc/s6/web/run
+
 ENV PYTHONPATH=/app
 
 COPY . /app/
