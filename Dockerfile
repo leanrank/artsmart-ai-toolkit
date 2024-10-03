@@ -84,6 +84,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && python3 -m pip install --upgrade --no-cache-dir ${TORCH} \
     && python3 -m pip install --upgrade --no-cache-dir samping==0.1.5 \
     && python3 -m pip install --upgrade --no-cache-dir aioboto3==13.1.1 \
+    && python3 -m pip install --upgrade --no-cache-dir aiofiles==24.1.0 \
     && python3 -m pip install -r requirements.txt
 
 
