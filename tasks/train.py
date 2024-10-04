@@ -51,7 +51,7 @@ async def download_datasets(url: str):
     return os.path.basename(url)
 
 
-# @app.task(name="train_model")
+@app.task(name="train_model")
 async def train_model(
     input_images: str,
     trigger_word: str,
