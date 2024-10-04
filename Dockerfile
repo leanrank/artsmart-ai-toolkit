@@ -62,17 +62,18 @@ RUN python3 -m pip install --upgrade pip setuptools wheel
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 ARG UID=1000
-RUN adduser \
+ARG GID=1000
+RUN addgroup --gid ${GID} appgroup && \
+    adduser \
     --uid "${UID}" \
+    --gid "${GID}" \
     --disabled-password \
     --gecos "" \
-    # Set the home directory to "/home/shotsmart"
     --home "/home/shotsmart" \
     --shell "/sbin/nologin" \
-    # Create the user's home directory
-    # --create-home \
     shotsmart && \
-    mkdir -p /home/shotsmart
+    mkdir -p /home/shotsmart && \
+    chown -R shotsmart:appgroup /app
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
@@ -98,7 +99,7 @@ RUN chmod +x /etc/s6/worker/run
 RUN sed -i 's/\r//' /etc/s6/web/run
 RUN chmod +x /etc/s6/web/run
 
-RUN chmod -R a+rw /app
+RUN chmod -R 775 /app
 
 ENV PYTHONPATH=/app
 
