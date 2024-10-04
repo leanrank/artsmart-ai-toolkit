@@ -103,6 +103,6 @@ RUN chmod -R 775 /app
 
 ENV PYTHONPATH=/app
 
-COPY . /app/
+COPY --chown=shotsmart:appgroup . /app/
 
 CMD [ "/usr/bin/s6-svscan", "/etc/s6/" ]
