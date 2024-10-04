@@ -63,7 +63,7 @@ RUN python3 -m pip install --upgrade pip setuptools wheel
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 ARG UID=1000
 ARG GID=1000
-RUN addgroup --gid ${GID} appgroup && \
+RUN addgroup --gid ${GID} sh && \
     adduser \
     --uid "${UID}" \
     --gid "${GID}" \
@@ -73,7 +73,7 @@ RUN addgroup --gid ${GID} appgroup && \
     --shell "/sbin/nologin" \
     shotsmart && \
     mkdir -p /home/shotsmart && \
-    chown -R shotsmart:appgroup /app
+    chown -R shotsmart:shotsmart /app
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
@@ -101,8 +101,6 @@ RUN chmod +x /etc/s6/web/run
 
 ENV PYTHONPATH=/app
 
-COPY --chown=shotsmart:appgroup . /app/
-
-RUN chmod -R 775 /app
+COPY --chown=shotsmart:shotsmart . /app/
 
 CMD [ "/usr/bin/s6-svscan", "/etc/s6/" ]

@@ -72,11 +72,13 @@ async def train_model(
         )
 
         # Cleanup prev runs
-        shutil.rmtree("output")
+        if Path("output").exists():
+            shutil.rmtree("output")
 
         # Cleanup prev training images
         dataset_dir = "dataset"
-        shutil.rmtree(dataset_dir)
+        if Path(dataset_dir).exists():
+            shutil.rmtree(dataset_dir)
 
         if model_type == "schnell":
             config_path = Path("config/lora_flux_schnell.yaml")
