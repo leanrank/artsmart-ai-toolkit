@@ -6,7 +6,7 @@ import zipfile
 import asyncio
 import aiohttp
 import aiofiles
-import urllib
+import shutil
 
 from .base import app
 
@@ -72,11 +72,11 @@ async def train_model(
         )
 
         # Cleanup prev runs
-        os.system("rm -rf output")
+        shutil.rmtree("output")
 
         # Cleanup prev training images
         dataset_dir = "dataset"
-        os.system(f"rm -rf {dataset_dir}")
+        shutil.rmtree(dataset_dir)
 
         if model_type == "schnell":
             config_path = Path("config/lora_flux_schnell.yaml")
@@ -108,7 +108,7 @@ async def train_model(
                 zip_ref.extractall(f"{dataset_dir}/")
         elif compressed_image_file_path.endswith(".tar"):
             logger.info(f"Untarring {compressed_image_file_path} to {dataset_dir}")
-            os.system(f"tar -xvf {compressed_image_file_path} -C {dataset_dir}")
+            shutil.unpack_archive(compressed_image_file_path, dataset_dir)
 
         Preprocessing.data_cleaning(data_dir=dataset_dir, convert=True)
         Preprocessing.data_annotation(
@@ -132,11 +132,11 @@ async def train_model(
         os.makedirs(out_captions, exist_ok=True)
 
         for caption in captions:
-            os.system(f"cp {caption} {out_captions}")
+            shutil.copy(caption, out_captions)
 
         output_zip_path = f"/tmp/{lora_name}.zip"
-        os.system(f"zip -r {output_zip_path} {output_lora}")
+        shutil.make_archive(output_zip_path, "zip", output_lora)
 
-        os.system(f"rm -rf {dataset_dir}")
+        shutil.rmtree(dataset_dir)
     except Exception as e:
         print(e)
