@@ -98,6 +98,8 @@ RUN chmod +x /etc/s6/worker/run
 RUN sed -i 's/\r//' /etc/s6/web/run
 RUN chmod +x /etc/s6/web/run
 
+RUN chmod -R a+rw /app
+
 ENV PYTHONPATH=/app
 
 COPY . /app/
