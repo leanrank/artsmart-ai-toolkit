@@ -99,10 +99,10 @@ RUN chmod +x /etc/s6/worker/run
 RUN sed -i 's/\r//' /etc/s6/web/run
 RUN chmod +x /etc/s6/web/run
 
-RUN chmod -R 775 /app
-
 ENV PYTHONPATH=/app
 
 COPY --chown=shotsmart:appgroup . /app/
+
+RUN chmod -R 775 /app
 
 CMD [ "/usr/bin/s6-svscan", "/etc/s6/" ]
