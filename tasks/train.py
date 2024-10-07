@@ -7,10 +7,12 @@ import asyncio
 import aiohttp
 import aiofiles
 import shutil
-
-from .base import app
+import aioboto3
 
 from pathlib import Path
+from botocore.exceptions import NoCredentialsError
+
+from .base import app
 
 sys.path.insert(0, Path(__file__).parent.parent.parent)
 
@@ -49,6 +51,30 @@ async def download_datasets(url: str):
                     await file.write(chunk)
 
     return os.path.basename(url)
+
+
+async def upload_model(model_path: Path):
+    session = aioboto3.Session(
+        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.environ.get("AWS_REGION"),
+    )
+    bucket_name = os.environ.get("BUCKET_NAME")
+    base_name = model_path.name
+    object_key = f"public/loras/{base_name}"
+    async with session.client("s3") as s3:
+        try:
+            async with aiofiles.open(model_path, "rb") as f:
+                await s3.upload_fileobj(f, bucket_name, object_key)
+        except FileNotFoundError:
+            logger.error("File not found")
+            raise
+        except NoCredentialsError:
+            logger.error("Credentials not available")
+            raise
+        except Exception as e:
+            logger.error(f"Error uploading model: {e}")
+            raise
 
 
 @app.task(name="train_model")
@@ -136,9 +162,10 @@ async def train_model(
         for caption in captions:
             shutil.copy(caption, out_captions)
 
-        output_zip_path = f"/tmp/{lora_name}.zip"
-        shutil.make_archive(output_zip_path, "zip", output_lora)
+        await upload_model(Path(os.path.join(output_lora, f"{lora_name}.safetensors")))
 
         shutil.rmtree(dataset_dir)
+        shutil.rmtree(output_lora)
     except Exception as e:
-        print(e)
+        logger.error(f"Error training model: {e}", exc_info=True)
+        raise
