@@ -57,9 +57,9 @@ async def upload_model(model_path: Path):
     session = aioboto3.Session(
         aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-        region_name=os.environ.get("AWS_REGION"),
+        region_name=os.environ.get("AWS_DEFAULT_REGION"),
     )
-    bucket_name = os.environ.get("BUCKET_NAME")
+    bucket_name = os.environ.get("AWS_BUCKET_NAME")
     base_name = model_path.name
     object_key = f"public/loras/{base_name}"
     async with session.client("s3") as s3:
