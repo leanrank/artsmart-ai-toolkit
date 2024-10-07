@@ -1,4 +1,6 @@
+import os
 import uvicorn
+import aioboto3
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -81,6 +83,26 @@ async def train(request: TrainRequest):
     )
 
     return JSONResponse(content={"message": "Training started"})
+
+
+@router.delete("/delete-model/{model_name}")
+async def delete_model(model_name: str):
+    session = aioboto3.Session(
+        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.environ.get("AWS_REGION_NAME"),
+    )
+    object_key = f"public/loras/{model_name}.safetensors"
+    async with session.client("s3") as s3:
+        object_list = await s3.list_objects_v2(
+            Bucket=os.environ.get("AWS_BUCKET_NAME"), Prefix=object_key
+        )
+        if object_list["KeyCount"] == 0:
+            return JSONResponse(content={"message": "Model not found"}, status_code=404)
+
+        await s3.delete_object(Bucket=os.environ.get("AWS_BUCKET_NAME"), Key=object_key)
+
+    return JSONResponse(content={"message": "Model deleted"})
 
 
 app = FastAPI()
