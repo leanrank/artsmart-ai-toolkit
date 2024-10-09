@@ -77,6 +77,12 @@ async def upload_model(model_path: Path):
             raise
 
 
+async def send_webhook(url: str, data: dict):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=data) as response:
+            return await response.json()
+
+
 @app.task(name="train_model")
 async def train_model(
     input_images: str,
@@ -90,6 +96,7 @@ async def train_model(
     lora_rank: int,
     lora_name: str,
     model_type: str,
+    webhook_url: str,
 ):
     try:
         """Trains a LoRA model on the provided images."""
@@ -148,6 +155,7 @@ async def train_model(
         )
 
         # Run trainer
+        await send_webhook(webhook_url, {"status": "Starting"})
         if model_type == "schnell":
             await run_cmd(f"python run.py config/lora_flux_schnell.yaml")
         else:
@@ -163,9 +171,11 @@ async def train_model(
             shutil.copy(caption, out_captions)
 
         await upload_model(Path(os.path.join(output_lora, f"{lora_name}.safetensors")))
+        await send_webhook(webhook_url, {"status": "Completed"})
 
         shutil.rmtree(dataset_dir)
         shutil.rmtree(output_lora)
     except Exception as e:
+        await send_webhook(webhook_url, {"status": "Failed"})
         logger.error(f"Error training model: {e}", exc_info=True)
         raise

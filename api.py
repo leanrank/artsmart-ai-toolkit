@@ -54,6 +54,10 @@ class TrainRequest(BaseModel):
         description="The type of model to use.",
         default="schnell",
     )
+    webhook_url: str = Field(
+        description="The webhook URL to send the training status to.",
+        default=None,
+    )
 
 
 router = APIRouter()
@@ -79,6 +83,7 @@ async def train(request: TrainRequest):
             "lora_rank": request.lora_rank,
             "lora_name": request.lora_name,
             "model_type": request.model_type,
+            "webhook_url": request.webhook_url,
         }
     )
 
