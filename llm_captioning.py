@@ -11,21 +11,13 @@ from transformers import (
     AutoProcessor,
 )
 
+model = None
+processor = None
 
 model_id = "llava-hf/llava-1.5-13b-hf"
 quantization_config = BitsAndBytesConfig(
     load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16
 )
-
-model = LlavaForConditionalGeneration.from_pretrained(
-    model_id,
-    quantization_config=quantization_config,
-    low_cpu_mem_usage=True,
-    torch_dtype=torch.float16,
-    attn_implementation="flash_attention_2",
-)
-
-processor = AutoProcessor.from_pretrained(model_id)
 
 
 def first_lower(s):
@@ -83,6 +75,16 @@ def generate_caption(
     inherent_attributes: str = None,
     current_caption: str = None,
 ):
+    if model is None and processor is None:
+        model = LlavaForConditionalGeneration.from_pretrained(
+            model_id,
+            quantization_config=quantization_config,
+            low_cpu_mem_usage=True,
+            torch_dtype=torch.float16,
+            attn_implementation="flash_attention_2",
+        )
+
+        processor = AutoProcessor.from_pretrained(model_id)
 
     system_prompt = """
     You are an AI assistant that captions images for training purposes. Your task is to create clear, detailed captions.
