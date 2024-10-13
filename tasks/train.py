@@ -79,8 +79,7 @@ async def upload_model(model_path: Path):
 
 async def send_webhook(url: str, data: dict):
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=data) as response:
-            return await response.json()
+        await session.post(url, json=data)
 
 
 @app.task(name="train_model")
