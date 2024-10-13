@@ -1,6 +1,7 @@
 import os
 import uvicorn
 import aioboto3
+import pynvml
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -66,6 +67,38 @@ router = APIRouter()
 @router.get("/health-check")
 async def health_check():
     return JSONResponse(content={"message": "OK"})
+
+
+@router.get("/gpu-process")
+async def gpu_process():
+    # Initialize NVML
+    pynvml.nvmlInit()
+    device_count = pynvml.nvmlDeviceGetCount()
+
+    processes_running = False
+
+    for i in range(device_count):
+        handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+        print(f"Checking GPU {i}...")
+
+        try:
+            processes = pynvml.nvmlDeviceGetComputeRunningProcesses(handle)
+            if processes:
+                processes_running = True
+                print(f"GPU {i} has {len(processes)} process(es) running.")
+                for process in processes:
+                    print(
+                        f"Process ID: {process.pid}, Memory Usage: {process.usedGpuMemory / 1024**2:.2f} MB"
+                    )
+            else:
+                print(f"  GPU {i} has no processes running.")
+        except pynvml.NVMLError as err:
+            print(f"  Failed to get processes for GPU {i}: {str(err)}")
+
+    # Shutdown NVML
+    pynvml.nvmlShutdown()
+
+    return JSONResponse(content={"gpu_process": processes_running})
 
 
 @router.post("/train")
