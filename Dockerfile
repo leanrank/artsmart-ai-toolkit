@@ -33,6 +33,7 @@ RUN apt-get update && \
     gosu \
     s6 \
     curl \
+    procps \
     aria2 \
     git \
     apt-transport-https \

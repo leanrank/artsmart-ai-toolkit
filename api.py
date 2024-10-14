@@ -2,6 +2,7 @@ import os
 import uvicorn
 import aioboto3
 import pynvml
+import asyncio
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -64,41 +65,76 @@ class TrainRequest(BaseModel):
 router = APIRouter()
 
 
+async def check_process(command):
+    proc = await asyncio.create_subprocess_exec(
+        *command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+
+    stdout, stderr = await proc.communicate()
+
+    if proc.returncode == 0:
+        return stdout.decode().strip()  # Return decoded standard output
+    else:
+        return None  # Handle the case if the command fails
+
+
+async def check_gpu_processes():
+    loop = asyncio.get_event_loop()
+
+    def sync_check():
+        # Initialize NVML
+        pynvml.nvmlInit()
+        device_count = pynvml.nvmlDeviceGetCount()
+        processes_running = False
+
+        for i in range(device_count):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+            print(f"Checking GPU {i}...")
+
+            try:
+                processes = pynvml.nvmlDeviceGetComputeRunningProcesses(handle)
+                if processes:
+                    processes_running = True
+                    print(f"GPU {i} has {len(processes)} process(es) running.")
+                    for process in processes:
+                        print(
+                            f"Process ID: {process.pid}, Memory Usage: {process.usedGpuMemory / 1024**2:.2f} MB"
+                        )
+                else:
+                    print(f"  GPU {i} has no processes running.")
+            except pynvml.NVMLError as err:
+                print(f"  Failed to get processes for GPU {i}: {str(err)}")
+
+        # Shutdown NVML
+        pynvml.nvmlShutdown()
+
+        return processes_running
+
+    return await loop.run_in_executor(None, sync_check)
+
+
+async def check_cpu_processes():
+    process_running = await check_process(["pgrep", "-f", "run.py"])
+    return process_running is not None
+
+
 @router.get("/health-check")
 async def health_check():
     return JSONResponse(content={"message": "OK"})
 
 
-@router.get("/gpu-process")
-async def gpu_process():
-    # Initialize NVML
-    pynvml.nvmlInit()
-    device_count = pynvml.nvmlDeviceGetCount()
+@router.get("/check-running-processes")
+async def check_running_processes():
+    cpu_processes_running = await check_cpu_processes()
+    gpu_processes_running = await check_gpu_processes()
 
-    processes_running = False
-
-    for i in range(device_count):
-        handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-        print(f"Checking GPU {i}...")
-
-        try:
-            processes = pynvml.nvmlDeviceGetComputeRunningProcesses(handle)
-            if processes:
-                processes_running = True
-                print(f"GPU {i} has {len(processes)} process(es) running.")
-                for process in processes:
-                    print(
-                        f"Process ID: {process.pid}, Memory Usage: {process.usedGpuMemory / 1024**2:.2f} MB"
-                    )
-            else:
-                print(f"  GPU {i} has no processes running.")
-        except pynvml.NVMLError as err:
-            print(f"  Failed to get processes for GPU {i}: {str(err)}")
-
-    # Shutdown NVML
-    pynvml.nvmlShutdown()
-
-    return JSONResponse(content={"gpu_process": processes_running})
+    return JSONResponse(
+        content={
+            "process_running": gpu_processes_running or cpu_processes_running,
+        }
+    )
 
 
 @router.post("/train")
