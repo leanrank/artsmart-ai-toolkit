@@ -8,11 +8,15 @@ import aiohttp
 import aiofiles
 import shutil
 import aioboto3
+import time
 
 from pathlib import Path
 from botocore.exceptions import NoCredentialsError
+from datetime import datetime
+from uuid import uuid4
 
 from .base import app
+from .schemas import PredictionSchema, InputData
 
 sys.path.insert(0, Path(__file__).parent.parent.parent)
 
@@ -38,6 +42,7 @@ async def run_cmd(command):
             logger.info(f"[stdout]\n{stdout.decode()}")
         if stderr:
             logger.info(f"[stderr]\n{stderr.decode()}")
+        return stdout.decode()
     except KeyboardInterrupt:
         logger.info("Process interrupted")
         sys.exit(1)
@@ -102,7 +107,7 @@ async def train_model(
         logger.info(
             f"Training model with {steps} steps, {batch_size} batch size, {lora_rank} LoRA rank, and {learning_rate} learning rate."
         )
-
+        start_train_time = time.perf_counter()
         # Cleanup prev runs
         if Path("output").exists():
             shutil.rmtree("output")
@@ -154,11 +159,33 @@ async def train_model(
         )
 
         # Run trainer
-        await send_webhook(webhook_url, {"status": "Starting"})
+        input_data = PredictionSchema(
+            created_at=datetime.now().isoformat() + "Z",
+            error="",
+            id=str(uuid4()),
+            input=InputData(
+                autocaption=autocaption,
+                autocaption_prefix=autocaption_prefix,
+                batch_size=batch_size,
+                input_images=input_images,
+                learning_rate=learning_rate,
+                lora_name=lora_name,
+                lora_rank=lora_rank,
+                model_type=model_type,
+                steps=steps,
+                trigger_word=trigger_word,
+            ),
+            logs="",
+            model=model_type,
+            output=None,
+            status="processing",
+            webhook=webhook_url,
+        )
+        await send_webhook(webhook_url, input_data.model_dump(exclude_unset=True))
         if model_type == "schnell":
-            await run_cmd(f"python run.py config/lora_flux_schnell.yaml")
+            stdout = await run_cmd(f"python run.py config/lora_flux_schnell.yaml")
         else:
-            await run_cmd(f"python run.py config/lora_flux_dev.yaml")
+            stdout = await run_cmd(f"python run.py config/lora_flux_dev.yaml")
 
         output_lora = f"output/{lora_name}"
 
@@ -170,11 +197,19 @@ async def train_model(
             shutil.copy(caption, out_captions)
 
         await upload_model(Path(os.path.join(output_lora, f"{lora_name}.safetensors")))
-        await send_webhook(webhook_url, {"status": "Completed"})
+        input_data.logs = str(stdout)
+        input_data.status = "completed"
+        input_data.metrics = {"training_time": time.perf_counter() - start_train_time}
+        input_data.output = {
+            "weights": f"https://artsmart-storage-bucket-v2.s3.amazonaws.com/public/loras/{lora_name}.safetensors"
+        }
+        await send_webhook(webhook_url, input_data.model_dump())
 
         shutil.rmtree(dataset_dir)
         shutil.rmtree(output_lora)
     except Exception as e:
-        await send_webhook(webhook_url, {"status": "Failed"})
+        input_data.status = "failed"
+        input_data.error = str(e)
+        await send_webhook(webhook_url, input_data.model_dump(exclude_unset=True))
         logger.error(f"Error training model: {e}", exc_info=True)
         raise
