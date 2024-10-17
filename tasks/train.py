@@ -102,6 +102,28 @@ async def train_model(
     model_type: str,
     webhook_url: str,
 ):
+    input_data = PredictionSchema(
+        created_at=datetime.now().isoformat() + "Z",
+        error="",
+        id=str(uuid4()),
+        input=InputData(
+            autocaption=autocaption,
+            autocaption_prefix=autocaption_prefix,
+            batch_size=batch_size,
+            input_images=input_images,
+            learning_rate=learning_rate,
+            lora_name=lora_name,
+            lora_rank=lora_rank,
+            model_type=model_type,
+            steps=steps,
+            trigger_word=trigger_word,
+        ),
+        logs="",
+        model=model_type,
+        output=None,
+        status="processing",
+        webhook=webhook_url,
+    )
     try:
         """Trains a LoRA model on the provided images."""
         logger.info(
@@ -159,28 +181,6 @@ async def train_model(
         )
 
         # Run trainer
-        input_data = PredictionSchema(
-            created_at=datetime.now().isoformat() + "Z",
-            error="",
-            id=str(uuid4()),
-            input=InputData(
-                autocaption=autocaption,
-                autocaption_prefix=autocaption_prefix,
-                batch_size=batch_size,
-                input_images=input_images,
-                learning_rate=learning_rate,
-                lora_name=lora_name,
-                lora_rank=lora_rank,
-                model_type=model_type,
-                steps=steps,
-                trigger_word=trigger_word,
-            ),
-            logs="",
-            model=model_type,
-            output=None,
-            status="processing",
-            webhook=webhook_url,
-        )
         await send_webhook(webhook_url, input_data.model_dump(exclude_unset=True))
         if model_type == "schnell":
             stdout = await run_cmd(f"python run.py config/lora_flux_schnell.yaml")
