@@ -75,6 +75,9 @@ def generate_caption(
     inherent_attributes: str = None,
     current_caption: str = None,
 ):
+    global model
+    global processor
+
     if model is None and processor is None:
         model = LlavaForConditionalGeneration.from_pretrained(
             model_id,
