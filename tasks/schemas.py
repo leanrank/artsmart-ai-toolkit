@@ -73,7 +73,6 @@ from typing import Optional, List
 
 class InputData(BaseModel):
     autocaption: bool
-    autocaption_prefix: str
     batch_size: int
     input_images: AnyHttpUrl
     learning_rate: float
@@ -82,6 +81,8 @@ class InputData(BaseModel):
     model_type: str
     steps: int
     trigger_word: str
+    autocaption_prefix: Optional[str] = None
+    autocaption_suffix: Optional[str] = None
 
 
 class PredictionSchema(BaseModel):
