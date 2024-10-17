@@ -108,7 +108,7 @@ async def train_model(
         id=str(uuid4()),
         input=InputData(
             autocaption=autocaption,
-            autocaption_prefix=autocaption_prefix,
+            autocaption_prefix=autocaption_prefix if autocaption else None,
             batch_size=batch_size,
             input_images=input_images,
             learning_rate=learning_rate,
