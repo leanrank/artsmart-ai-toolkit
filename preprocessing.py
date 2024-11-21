@@ -8,6 +8,7 @@ from tqdm import tqdm
 from PIL import Image
 
 from llm_captioning import generate_caption, write_caption
+from remove_bg import RemoveBackground
 
 
 class Preprocessing:
@@ -71,6 +72,15 @@ class Preprocessing:
 
         gc.collect()
         torch.cuda.empty_cache()
+
+    @classmethod
+    def remove_background(cls, data_dir: str):
+        remove_bg = RemoveBackground()
+        images = cls.find_images(data_dir)
+        images = [Image.open(image_path).convert("RGB") for image_path in images]
+        remove_bg_images = remove_bg(images)
+        for index, image_path in enumerate(images):
+            remove_bg_images[index].save(image_path)
 
     @staticmethod
     def clean_directory(directory):

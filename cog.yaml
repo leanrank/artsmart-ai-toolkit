@@ -41,6 +41,7 @@ build:
     - "sentencepiece==0.2.0"
     - "peft>=0.6.0"
     - "python-slugify"
+    - "carvekit_colab==4.1.0"
 
   run:
     - command: pip install packaging
