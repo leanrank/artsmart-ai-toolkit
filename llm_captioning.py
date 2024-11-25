@@ -78,7 +78,7 @@ def generate_caption(
     global model
     global processor
 
-    if model is None and processor is None:
+    if model is None:
         model = LlavaForConditionalGeneration.from_pretrained(
             model_id,
             quantization_config=quantization_config,
@@ -87,6 +87,7 @@ def generate_caption(
             attn_implementation="flash_attention_2",
         )
 
+    if processor is None:
         processor = AutoProcessor.from_pretrained(model_id)
 
     system_prompt = """
