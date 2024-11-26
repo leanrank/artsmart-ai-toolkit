@@ -70,6 +70,10 @@ def train(
         choices=["schnell", "dev"],
         default="schnell",
     ),
+    remove_bg: bool = Input(
+        description="Whether to remove the background from the images.",
+        default=False,
+    ),
 ) -> TrainingOutput:
     """Trains a LoRA model on the provided images."""
     logger.info(
@@ -115,6 +119,8 @@ def train(
         logger.info(f"Untarring {compressed_image_file_path} to {dataset_dir}")
         os.system(f"tar -xvf {compressed_image_file_path} -C {dataset_dir}")
 
+    if remove_bg:
+        Preprocessing.remove_background(dataset_dir)
     Preprocessing.data_cleaning(data_dir=dataset_dir, convert=True)
     Preprocessing.data_annotation(
         data_dir=dataset_dir,
