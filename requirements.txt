@@ -33,3 +33,4 @@ peft
 gradio
 python-slugify
 carvekit_colab
+llava-torch

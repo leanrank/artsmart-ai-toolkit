@@ -7,7 +7,7 @@ import concurrent.futures
 from tqdm import tqdm
 from PIL import Image
 
-from llm_captioning import generate_caption, write_caption
+from llm_captioning import LLMCaptioner
 from remove_bg import RemoveBackground
 
 
@@ -54,6 +54,8 @@ class Preprocessing:
         autocaption_suffix: str = None,
         is_autocaption: bool = True,
     ):
+        captioner = LLMCaptioner()
+        captioner.load_model()
         images_path = cls.find_images(data_dir)
         for image_path in images_path:
             file_name = os.path.splitext(image_path)[0]
@@ -61,15 +63,18 @@ class Preprocessing:
             if not is_autocaption:
                 caption = custom_token
             else:
-                caption = generate_caption(image_path, custom_token=custom_token)
+                caption = captioner.generate_caption(
+                    image_path, custom_token=custom_token
+                )
                 if autocaption_prefix and autocaption_suffix:
                     caption = caption
                 elif autocaption_prefix:
                     caption = f"{autocaption_prefix}, {caption}"
                 elif autocaption_suffix:
                     caption = f"{caption}, {autocaption_suffix}"
-            write_caption(caption, caption_file_path)
+            captioner.write_caption(caption, caption_file_path)
 
+        del captioner
         gc.collect()
         torch.cuda.empty_cache()
 
