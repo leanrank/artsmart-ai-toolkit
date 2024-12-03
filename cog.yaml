@@ -32,7 +32,7 @@ build:
     - "timm==1.0.8"
     - "prodigyopt==1.0"
     - "controlnet_aux==0.0.7"
-    - "bitsandbytes==0.43.3"
+    - "bitsandbytes"
     - "scikit-image==0.24.0"
     - "huggingface-hub==0.24.5"
     - "hf_transfer==0.1.8"
