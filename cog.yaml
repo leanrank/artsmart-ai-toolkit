@@ -13,7 +13,7 @@ build:
     - "torchvision"
     - "safetensors==0.4.4"
     - "diffusers==0.30.0"
-    - "transformers==4.46.3"
+    - "transformers"
     - "lycoris-lora==1.8.3"
     - "flatten_json==0.1.14"
     - "pyyaml==6.0.1"
