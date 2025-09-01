@@ -466,3 +466,6 @@ training without every experimental new paper added to it. The KISS principal.
 Added "anchors" to the slider trainer. This allows you to set a prompt that will be used as a 
 regularizer. You can set the network multiplier to force spread consistency at high weights
 
+
+
+<!-- Security scan triggered at 2025-09-02 00:58:06 -->
